@@ -1,0 +1,116 @@
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc.exe 활성 파일 빌드",
+      "command": "C:\\MinGW\\bin\\gcc.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "디버거에서 생성된 작업입니다."
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: ctest.c 활성 파일 빌드",
+      "command": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc\\ctest.c",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "디버거에서 생성된 작업입니다."
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc.exe 활성 파일 빌드",
+      "command": "C:\\MinGW\\bin\\gcc.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "컴파일러: C:\\MinGW\\bin\\gcc.exe"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: ctest.c 활성 파일 빌드",
+      "command": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc\\ctest.c",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "컴파일러: c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc\\ctest.c"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: ctest.c 활성 파일 빌드",
+      "command": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc\\ctest.c",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "컴파일러: c:\\Users\\leejh\\Desktop\\junweekalgo\\ccccc\\ctest.c"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc.exe 활성 파일 빌드",
+      "command": "C:\\MinGW\\bin\\gcc.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "컴파일러: C:\\MinGW\\bin\\gcc.exe"
+    }
+  ],
+  "version": "2.0.0"
+}

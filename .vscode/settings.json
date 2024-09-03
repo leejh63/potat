@@ -1,0 +1,5 @@
+{
+  "debug.showSubSessionsInToolBar": true,
+  "debug.toolBarLocation": "floating",
+  "testing.coverageToolbarEnabled": false
+}
