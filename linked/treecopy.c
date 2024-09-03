@@ -325,8 +325,49 @@ void delfixed(rbtree* tree, node_t *delchil)
 
     // delchil 노드가 루트, 색깔이 검정> while문 끝
     while(fixnode != tree->root && fixnode->color == 1)
-    {// fixnode이 왼쪽일때
-        if(fixnode == delchil->parent->left)
+    {//    fixnode이 왼쪽일때
+        if(fixnode == delchil->parent->left){
+            othernode = fixnode->parent->right;
+            // 1. othernode 가 빨간색 > 2,3,4 가능
+            if (othernode->color == 0){
+                // 색깔 변경
+                othernode -> parent -> color = 0;
+                othernode -> color = 1;
+                // othernode-p 왼쪽 회전
+                Lrot(tree, othernode->parent);
+                // othernode는 변경후 fixnode->p의 오른쪽 자식 갱신
+                othernode = fixnode->parent->right;
+            
+            // 1에서 othernode의 색 변경 따라서 바로 진행
+            // 2 othernode 모든 자식이 검은색  > 1, 3, 4 가능
+            if (othernode->left->color == 1 && othernode->right->color == 1)
+            {// othernode의 색변경
+                othernode->color = 0;
+                // fixnode 갱신
+                fixnode = othernode->parent;
+
+
+            }else{ // othernode 가 검은색
+
+                // 3 othernode 왼쪽 자식이 빨간색 > 4 가능
+                if(othernode->left->color == 0)
+                {// 색깔 변경
+                    othernode->left->color = 1;
+                    othernode->color = 0;
+                    // 오른쪽으로 회전
+                    Rrot(tree, othernode->left);
+                    // othernode 갱신
+                    othernode = fixnode->parent->right;
+                }// 4 othernode 오른쪽 자식이 빨간색 > 종료 가능//
+                othernode->color = othernode->parent->color;
+                othernode->parent->color = 1;
+                othernode->right->color = 1;
+                Lrot(tree, othernode->parent);
+                delchil = tree->root;
+            }
+        }else{
+            // 좌우 반전
+        }
         
     }
 
@@ -334,7 +375,7 @@ void delfixed(rbtree* tree, node_t *delchil)
 }
 
 //p = findkey(k, 15)
-void rbtree_erase(rbtree *tree, node_t *delnode) {
+void rbtreeerase(rbtree *tree, node_t *delnode) {
 
     // 삭제할 노드, 색깔 저장
     node_t* delchil;
