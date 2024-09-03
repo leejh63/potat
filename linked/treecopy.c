@@ -325,16 +325,83 @@ void delfixed(rbtree* tree, node_t *delchil)
 
     // delchil 노드가 루트, 색깔이 검정> while문 끝
     while(fixnode != tree->root && fixnode->color == 1)
-    {// fixnode이 왼쪽일때
-        if(fixnode == delchil->parent->left)
-        
-    }
+    {   // fixnode이 왼쪽일때
+        if(fixnode == delchil->parent->left){
+            othernode = fixnode->parent->right;
+            // 1. othernode 가 빨간색 > 2,3,4 가능
+            if (othernode->color == 0){
+                // 색깔 변경
+                othernode -> parent -> color = 0;
+                othernode -> color = 1;
+                // othernode-p 왼쪽 회전
+                Lrot(tree, othernode->parent);
+                // othernode는 변경후 fixnode->p의 오른쪽 자식 갱신
+                othernode = fixnode->parent->right;
+            }
+            // 1에서 othernode의 색 변경 따라서 바로 진행
+            // 2 othernode 모든 자식이 검은색  > 1, 3, 4 가능
+            if (othernode->left->color == 1 && othernode->right->color == 1){
+                // othernode의 색변경
+                othernode->color = 0;
+                // fixnode 갱신
+                fixnode = othernode->parent;
 
+            }else{ // othernode 가 검은색
+            // 3 othernode 왼쪽 자식이 빨간색 > 4 가능
+                if(othernode->left->color == 0)
+                {// 색깔 변경
+                    othernode->left->color = 1;
+                    othernode->color = 0;
+                    // 오른쪽으로 회전
+                    Rrot(tree, othernode);
+                    // othernode 갱신
+                    othernode = fixnode->parent->right;
+                }
+                // 4 othernode 오른쪽 자식이 빨간색 > 종료 가능//
+                othernode->color = othernode->parent->color;
+                othernode->parent->color = 1;
+                othernode->right->color = 1;
+                Lrot(tree, othernode->parent);
+
+                // 여기 까지 오게 된다면 모든 문제점들이 해결된거나 마찬가지
+                // while 문을 끝내주기 위한 조건일뿐 자료구조 자체는 변경점이 없다. 
+                fixnode = tree->root;
+            }
+        } else{// 좌우 반전
+            othernode = fixnode->parent->left;
+            if (othernode->color == 0){
+                othernode->parent->color = 0;
+                othernode->color = 1;
+                Rrot(tree, fixnode->parent);
+                othernode = fixnode->parent->left;
+            }
+
+            if (othernode->left->color == 1 && othernode->right->color == 1){
+                othernode->color = 0;
+                fixnode = fixnode->parent;
+
+            }else{
+                if (othernode->right->color == 0){
+                    othernode->parent->color = 0;
+                    othernode->right->color = 1;
+                    Lrot(tree, othernode);
+                    othernode = fixnode->parent->left;
+                }
+                othernode->color = othernode->parent->color;
+                othernode->parent->color = 1;
+                othernode->left->color = 1;
+                Rrot(tree,othernode->parent);
+                fixnode = tree->root;
+            }
+        }
+            
+    }
     fixnode->color = 1;
 }
 
-//p = findkey(k, 15)
-void rbtree_erase(rbtree *tree, node_t *delnode) {
+    
+
+void rbtree_erase1(rbtree *tree, node_t *delnode) {
 
     // 삭제할 노드, 색깔 저장
     node_t* delchil;
@@ -394,8 +461,8 @@ void rbtree_erase(rbtree *tree, node_t *delnode) {
 
 int main(void){
 
-    int numkey, keyfind;
-    node_t *minnode, *corr;
+    int numkey, keyfind, delkeynum;
+    node_t *minnode, *corr, *delp;
     rbtree* k = new_rbtree();
     
     printf("트리 생성: 주소 %p, tree->nil %p, tree->root %p\n", k, k->nil, k->root);
@@ -432,7 +499,21 @@ int main(void){
     corr = rbmin(k, minnode);
     printf("-----------\n");
     print_node_info(corr, k->nil);
+    
+    while (1)
+    {   
+        printf("삭제test 키 입력:\n");
+        scanf("%d", &delkeynum);
+        if (delkeynum == -1){
+            break;
+        } 
+        delp = findkey(k, delkeynum);
+        rbtree_erase1(k, delp);
+        printf("삭제후 모든 노드 출력:\n");
+        print_tree(k, k->root);
 
+    }
+    
 
     // 트리 삭제
     delete_rbtree(k);
