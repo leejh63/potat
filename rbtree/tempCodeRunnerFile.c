@@ -1,1 +1,0 @@
-                uncle->color = 1;

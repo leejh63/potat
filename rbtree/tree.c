@@ -1,58 +1,7 @@
 #include "rbtree.h"
-#include <stdio.h>
+
 #include <stdlib.h>
 
-// 트리 구조체 생성 함수
-rbtree *new_rbtree(void) {
-  // 1.  rbtree구조체 생성/ root포인터, nil포인터 포함됨
-  rbtree *tree = (rbtree *)calloc(1, sizeof(rbtree));
-
-  // 2. sentinel 노드 생성
-  node_t *nilnode = (node_t *)calloc(1, sizeof(node_t));
-
-  // 3. sentinel 노드초기화
-  nilnode->color = 1;
-  nilnode->key = -1;
-  nilnode->parent = NULL;
-  nilnode->left = NULL;
-  nilnode->right = NULL;
-
-  // 4. 닐노드 포인터 지정
-  tree->nil = nilnode;
-  // 초기 루트노드는 닐노드임.
-  tree->root = tree->nil;
-
-//   tree->root = nilnode; 큰 차이는 없지만 때에 따라서 차이발생 할 수 있음.
-  return tree;
-}
-
-// 모든 rbtree 삭제
-// 후위 순회를 통해 트리삭제 진행 
-void deltree(rbtree *tree, node_t *node)
-{
-    if (node != tree->nil)
-    {
-        deltree(tree, node->right);
-        deltree(tree, node->left);
-        free(node);
-    }
-    
-}
-
-void delete_rbtree(rbtree *t) 
-{
-  // 만약 루트 노드가 닐노드가 아니라면 트리가 존재 
-  if (t->root != t->nil)
-  {
-      deltree(t, t->root);
-  }
-  
-  free(t->nil);
-  free(t);
-
-}
-
-// 왼쪽 회전 nil, root 주소 받기 위함, 로테이션을 위한 노드 주소
 void Lrot(rbtree *tree, node_t*node)
 {
     //현재 노드 오른쪽주소 값 변수
@@ -171,7 +120,54 @@ void insertfix(rbtree* tree, node_t* newnode)
     tree->root->color = 1;
 }
 
-void insertnode(rbtree* tree, const key_t newkey)
+rbtree *new_rbtree(void) {
+  // 1.  rbtree구조체 생성/ root포인터, nil포인터 포함됨
+  rbtree *tree = (rbtree *)calloc(1, sizeof(rbtree));
+
+  // 2. sentinel 노드 생성
+  node_t *nilnode = (node_t *)calloc(1, sizeof(node_t));
+
+  // 3. sentinel 노드초기화
+  nilnode->color = 1;
+  nilnode->key = -1;
+  nilnode->parent = NULL;
+  nilnode->left = tree->nil;
+  nilnode->right = tree->nil;
+
+  // 4. 닐노드 포인터 지정
+  tree->nil = nilnode;
+  // 초기 루트노드는 닐노드임.
+  tree->root = tree->nil;
+
+//   tree->root = nilnode; 큰 차이는 없지만 때에 따라서 차이발생 할 수 있음.
+  return tree;
+}
+
+void deltree(rbtree *tree, node_t *node)
+{
+    if (node != tree->nil)
+    {
+        deltree(tree, node->right);
+        deltree(tree, node->left);
+        free(node);
+    }
+    
+}
+
+void delete_rbtree(rbtree *t) 
+{
+  // 만약 루트 노드가 닐노드가 아니라면 트리가 존재 
+  if (t->root != t->nil)
+  {
+      deltree(t, t->root);
+  }
+  
+  free(t->nil);
+  free(t);
+
+}
+
+node_t *rbtree_insert(rbtree *tree, const key_t newkey) 
 {
     node_t *newnode = (node_t *)calloc(1, sizeof(node_t));
     newnode->color = 0;
@@ -186,7 +182,7 @@ void insertnode(rbtree* tree, const key_t newkey)
         newnode->parent = tree->nil;
         // 루트 노드는 항상 검은색이여야 한다!
         newnode->color = 1;
-        return;
+        return newnode;
     }
     // rbtree에 노드 존재
     // nil 노드에 도달할때까지
@@ -212,136 +208,227 @@ void insertnode(rbtree* tree, const key_t newkey)
         nowparent->right = newnode;
     }
     insertfix(tree, newnode);
+    return newnode;
 }
 
-//////////////////////////////////////////////////////////////////////////
-void print_node_info(node_t *node, node_t *nil) {
-    if (node == nil) {
-        return;
-    }
-
-    printf("--노드 키: %d--색 %d\n", node->key, node->color);
-    if (node->parent != nil) {
-        printf("부모 키: %d, 색: %d \n", node->parent->key, node->parent->color);
-    } else {
-        printf("부모: 없음, \n");
-    }
-
-    if (node->left != nil) {
-        printf("왼쪽 자식 키: %d 색: %d \n", node->left->key, node->left->color);
-    } else {
-        printf("왼쪽 자식: 없음, \n");
-    }
-
-    if (node->right != nil) {
-        printf("오른쪽 자식 키: %d, 색: %d \n", node->right->key, node->right->color);
-    } else {
-        printf("오른쪽 자식: 없음\n");
-    }
-    printf("\n");
-}
-
-// 트리의 모든 노드를 부모, 왼쪽 자식, 오른쪽 자식 순으로 출력하는 함수
-void print_tree(rbtree *tree, node_t *node) {
-    if (node == tree->nil) {
-        return;
-    }
-
-    // 현재 노드의 정보를 출력
-    print_node_info(node, tree->nil);
-
-    // 왼쪽 서브트리를 순회
-    print_tree(tree, node->left);
-
-    // 오른쪽 서브트리를 순회
-    print_tree(tree, node->right);
-}
-////////////////////////////////////////////////////////////////////////
-
-node_t* findkey(rbtree* tree, const key_t findkey)
+node_t *rbtree_find(const rbtree *tree, const key_t findkey) 
 {
     // 트리의 루트부터 시작
     node_t *nownode = tree->root;
-    //1 찾는 키와 현재 노드 키값이 다를 경우 진행
-    while (nownode->key != findkey)
-    {
-        if (nownode == tree->nil){// 닐노드의 키값을 -1로 지정함
-            printf("찾는키 없음\n");
-            return NULL;
-        }
 
-        // 만약 키 값 크다면 현재노드 오른쪽 노드가 다음노드
-        if (nownode->key < findkey){
+    while (nownode != tree-> nil)
+    {
+        if (nownode->key  == findkey){
+            return nownode;
+        }else if (nownode->key < findkey){
             nownode = nownode->right;
-        }else{ // 작다면 왼쪽 노드가 다음노드
+        }else{
             nownode = nownode->left;
-        } // 현재노드 키값과 찾는 키값이 같을 때까지 무한반복
-    }
-    print_node_info(nownode, tree->nil);
-    return nownode;
-}
-
-node_t *rbmin(const rbtree *t, node_t* nodett) {
-//   node_t* nownode = t-> root;
-  node_t* nownode = nodett;
-  node_t* temp;
-  while(nownode != t -> nil){
-    temp = nownode;
-    nownode = nownode->left;
-  }
-  return temp;
-}
-
-// node_t *rbtree_max(const rbtree *t) {
-//   // TODO: implement find
-//   return t->root;
-// }
-
-
-
-
-int main(void){
-
-    int numkey, keyfind;
-    node_t *minnode, *corr;
-    rbtree* k = new_rbtree();
-    
-    printf("트리 생성: 주소 %p, tree->nil %p, tree->root %p\n", k, k->nil, k->root);
-    // 노드 삽입
-
-
-    while (1)
-    {
-        printf("삽입 키 입력:\n");
-        scanf("%d", &numkey);
-        if (numkey == -1){
-            break;
         }
-        insertnode(k, numkey);
-        // printf("트리의 삽입 후 노드 출력:\n");
-        // print_tree(k, k->root);
+    }
+    return NULL;
+}
+
+node_t *rbmin(const rbtree *tree, node_t* nodett) {
+    node_t* minnode = nodett;
+    if (minnode == tree->nil)
+    {
+        return minnode;
     }
 
-    printf("트리의 모든 노드 출력:\n");
-    print_tree(k, k->root);
+    while(minnode->left != tree->nil){
+        minnode = minnode->left;
+    }
+    return minnode;
+}
+/////////////////////////////////////////////////////////
+node_t *rbtree_min(const rbtree *tree) {
+    node_t* minnode = tree->root;
+    
+    while(minnode->left != tree->nil){
+        minnode = minnode->left;
+    }
+    return minnode;
+}
 
-    // while(1) // 이거 실행전 findkey(k, keyfind) 함수형, 반환값 수정 필수
-    // {
-    //     printf("찾는 키 입력:\n");
-    //     scanf("%d", &keyfind);
-    //     if (keyfind == -1){
-    //         break;
-    //     } 
-    //     findkey(k, keyfind);
-    // }
-    printf("test 키 입력:\n");
-    scanf("%d", &keyfind);
-    minnode = findkey(k, keyfind);
-    corr = rbmin(k, minnode);
-    printf("-----------\n");
-    print_node_info(corr, k->nil);
+node_t *rbtree_max(const rbtree *tree) {
+    node_t* maxnode = tree->root;
+    while(maxnode->right != tree->nil){
+        maxnode = maxnode->right;
+    }
+    return maxnode;
+}
+/////////////////////////////////////////////////////////////
+node_t *rbmax(const rbtree *tree, node_t* nodett) {
+    node_t* maxnode = nodett;
+    if (maxnode == tree->nil)
+    {
+        return maxnode;
+    }
+    // while(maxnode != tree->nil) 이런식으로 진행하면 임시 변수를 하나 더 설정해야한다.(rbmin)
+    // 아래와 같이 진행하는게 더 좋아보인다. // 확인 후 이동
+    while(maxnode->right != tree->nil){
+        maxnode = maxnode->right;
+    }
+    return maxnode;
+}
+
+void changep(rbtree* tree, node_t* oldnode, node_t* newnode){
+    // 바꿀 노드가 루트노드 라면
+    if (oldnode->parent == tree->nil){
+        tree->root = newnode;
+
+    }else if (oldnode == oldnode->parent->left){
+        oldnode->parent->left = newnode;
+    
+    }else{
+        oldnode->parent->right = newnode;
+    }
+    newnode->parent = oldnode->parent;
+    return;
+}
 
 
-    // 트리 삭제
-    delete_rbtree(k);
+void delfixed(rbtree* tree, node_t *fixnode){
+    node_t* othernode;
+
+    while((fixnode != tree->root) && (fixnode->color == 1))
+    {
+        if(fixnode == fixnode->parent->left)
+        {
+            othernode = fixnode->parent->right;
+            if (othernode->color == 0)
+            {
+                othernode -> color = 1;
+                fixnode -> parent -> color = 0;
+                Lrot(tree, fixnode->parent);
+                othernode = fixnode->parent->right;
+            }
+            if (othernode->left->color == 1 && othernode->right->color == 1)
+            {
+                othernode->color = 0;
+                fixnode = fixnode->parent;
+            }
+            else
+            { 
+                if(othernode->right->color == 1)
+                {
+                    othernode->left->color = 1;
+                    othernode->color = 0;
+                    Rrot(tree, othernode);
+                    othernode = fixnode->parent->right;
+                }
+                othernode->color = fixnode->parent->color;
+                fixnode->parent->color = 1;
+                othernode->right->color = 1;
+                Lrot(tree, fixnode->parent);
+                fixnode = tree->root;
+            }
+        }
+        else
+        {
+            othernode = fixnode->parent->left;
+            if (othernode->color == 0)
+            {
+                othernode->color = 1;
+                fixnode->parent->color = 0;
+                Rrot(tree, fixnode->parent);
+                othernode = fixnode->parent->left;
+            }
+            if (othernode->right->color == 1 && othernode->left->color == 1)
+            {
+                othernode->color = 0;
+                fixnode = fixnode->parent;
+
+            }
+            else
+            {
+                if (othernode->left->color == 1){
+                    othernode->right->color = 1;
+                    othernode->color = 0;
+                    Lrot(tree, othernode);
+                    othernode = fixnode->parent->left;
+                }
+                othernode->color = fixnode->parent->color;
+                fixnode->parent->color = 1;
+                othernode->left->color = 1;
+                Rrot(tree,fixnode->parent);
+                fixnode = tree->root;
+                
+            }
+        }
+            
+    }
+    fixnode->color = 1;
+}
+
+int rbtree_erase(rbtree *tree, node_t *delnode) {
+    // 삭제할 노드, 색깔 저장
+
+    node_t* deling = delnode; 
+    color_t delcolor = delnode->color;
+    node_t* delchil;
+
+    if (delnode->left == tree->nil){
+
+        delchil = delnode->right;
+
+        changep(tree, delnode, delnode->right);
+    
+    }else if (delnode->right == tree->nil){
+
+        delchil = delnode->left;
+        changep(tree, delnode, delnode->left);
+    
+    }else{
+
+        deling  = rbmin(tree, delnode->right);
+        delcolor = deling->color;
+        delchil = deling->right;
+
+
+        if(deling ->parent == delnode)
+        {
+             delchil->parent = deling;
+        }
+        else{
+            changep(tree, deling, deling->right);
+            deling-> right = delnode->right;
+            deling-> right-> parent = deling;
+        }
+
+        changep(tree, delnode, deling);
+        deling->left = delnode->left;
+        deling->left->parent = deling;
+        deling->color = delnode->color;
+    }
+
+
+    if (delcolor == 1){
+        delfixed(tree, delchil);
+    }
+    free(delnode);
+    return 0;
+}
+
+void treeval(node_t *nownode, key_t *arr, int* index, const size_t n) 
+{
+    if (nownode->key == -1 || *index >= n) {
+        return;
+    }
+
+    treeval(nownode->left, arr, index, n);
+    if (*index < n){
+        arr[(*index)++] = nownode->key;
+    }
+    treeval(nownode->right, arr, index, n);
+
+}
+
+
+int rbtree_to_array(const rbtree *tree, key_t *arr, const size_t n) {
+    int index = 0;
+    node_t *nownode = tree->root;
+    treeval(nownode, arr, &index, n);
+  return 0;
 }

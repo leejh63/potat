@@ -319,80 +319,73 @@ void changep(rbtree* tree, node_t* oldnode, node_t* newnode){
     newnode->parent = oldnode ->parent;
 }
 
-void delfixed(rbtree* tree, node_t *delchil)
-{
-    node_t* fixnode = delchil;
+
+void delfixed(rbtree* tree, node_t *fixnode){
     node_t* othernode;
 
-    // delchil 노드가 루트, 색깔이 검정> while문 끝
-    while(fixnode != tree->root && fixnode->color == 1)
-    {   // fixnode이 왼쪽일때
-        if(fixnode == delchil->parent->left){
+    while((fixnode != tree->root) && (fixnode->color == 1))
+    {
+        if(fixnode == fixnode->parent->left)
+        {
             othernode = fixnode->parent->right;
-            // 1. othernode 가 빨간색 > 2,3,4 가능
-            if (othernode->color == 0){
-                // 색깔 변경
-                othernode -> parent -> color = 0;
+            if (othernode->color == 0)
+            {
                 othernode -> color = 1;
-                // othernode-p 왼쪽 회전
-                Lrot(tree, othernode->parent);
-                // othernode는 변경후 fixnode->p의 오른쪽 자식 갱신
+                fixnode -> parent -> color = 0;
+                Lrot(tree, fixnode->parent);
                 othernode = fixnode->parent->right;
             }
-            // 1에서 othernode의 색 변경 따라서 바로 진행
-            // 2 othernode 모든 자식이 검은색  > 1, 3, 4 가능
-            if (othernode->left->color == 1 && othernode->right->color == 1){
-                // othernode의 색변경
+            if (othernode->left->color == 1 && othernode->right->color == 1)
+            {
                 othernode->color = 0;
-                // fixnode 갱신
-                fixnode = othernode->parent;
-
-            }else{ // othernode 가 검은색
-            // 3 othernode 왼쪽 자식이 빨간색 > 4 가능
-                if(othernode->left->color == 0)
-                {// 색깔 변경
+                fixnode = fixnode->parent;
+            }
+            else
+            { 
+                if(othernode->right->color == 1)
+                {
                     othernode->left->color = 1;
                     othernode->color = 0;
-                    // 오른쪽으로 회전
                     Rrot(tree, othernode);
-                    // othernode 갱신
                     othernode = fixnode->parent->right;
                 }
-                // 4 othernode 오른쪽 자식이 빨간색 > 종료 가능//
-                othernode->color = othernode->parent->color;
-                othernode->parent->color = 1;
+                othernode->color = fixnode->parent->color;
+                fixnode->parent->color = 1;
                 othernode->right->color = 1;
-                Lrot(tree, othernode->parent);
-
-                // 여기 까지 오게 된다면 모든 문제점들이 해결된거나 마찬가지
-                // while 문을 끝내주기 위한 조건일뿐 자료구조 자체는 변경점이 없다. 
+                Lrot(tree, fixnode->parent);
                 fixnode = tree->root;
             }
-        } else{// 좌우 반전
+        }
+        else
+        {
             othernode = fixnode->parent->left;
-            if (othernode->color == 0){
-                othernode->parent->color = 0;
+            if (othernode->color == 0)
+            {
                 othernode->color = 1;
+                fixnode->parent->color = 0;
                 Rrot(tree, fixnode->parent);
                 othernode = fixnode->parent->left;
             }
-
-            if (othernode->left->color == 1 && othernode->right->color == 1){
+            if (othernode->right->color == 1 && othernode->left->color == 1)
+            {
                 othernode->color = 0;
                 fixnode = fixnode->parent;
 
-            }else{
-                if (othernode->right->color == 0){
-                    othernode->parent->color = 0;
+            }
+            else
+            {
+                if (othernode->left->color == 1){
                     othernode->right->color = 1;
+                    othernode->color = 0;
                     Lrot(tree, othernode);
                     othernode = fixnode->parent->left;
                 }
-                othernode->color = othernode->parent->color;
-                othernode->parent->color = 1;
+                othernode->color = fixnode->parent->color;
+                fixnode->parent->color = 1;
                 othernode->left->color = 1;
-                Rrot(tree,othernode->parent);
+                Rrot(tree,fixnode->parent);
                 fixnode = tree->root;
+                
             }
         }
             
@@ -461,6 +454,26 @@ void rbtree_erase1(rbtree *tree, node_t *delnode) {
 
 }
 
+void treeval(node_t *nownode, key_t *arr, int* index) 
+{
+    if (nownode->key == -1) {
+        return;
+    }
+
+    treeval(nownode->left, arr, index);
+    arr[(*index)++] = nownode->key;
+    treeval(nownode->right, arr, index);
+
+}
+
+
+key_t* rbtree_to_array(const rbtree *tree, key_t *arr, const size_t n) {
+    int index = 0;
+    node_t *nownode = tree;
+    treeval(nownode, arr, &index);
+  return arr;
+}
+
 
 
 int main(void){
@@ -474,7 +487,7 @@ int main(void){
 
 
     while (1)
-    {
+    {// 삽입값{10, 5, 8, 34, 67, 23, 156, 24, 2, 12, 24, 36, 990, 25};
         printf("삽입 키 입력:\n");
         scanf("%d", &numkey);
         if (numkey == -1){
@@ -487,7 +500,6 @@ int main(void){
 
     printf("트리의 모든 노드 출력:\n");
     print_tree(k, k->root);
-
     // while(1) // 이거 실행전 findkey(k, keyfind) 함수형, 반환값 수정 필수
     // {
     //     printf("찾는 키 입력:\n");
@@ -497,26 +509,26 @@ int main(void){
     //     } 
     //     findkey(k, keyfind);
     // }
-    printf("test 키 입력:\n");
-    scanf("%d", &keyfind);
-    minnode = findkey(k, keyfind);
-    corr = rbmin(k, minnode);
-    printf("-----------\n");
-    print_node_info(corr, k->nil);
+    // printf("test 키 입력:\n");
+    // scanf("%d", &keyfind);
+    // minnode = findkey(k, keyfind);
+    // corr = rbmin(k, minnode);
+    // printf("-----------\n");
+    // print_node_info(corr, k->nil);
     
-    while (1)
-    {   
-        printf("삭제test 키 입력:\n");
-        scanf("%d", &delkeynum);
-        if (delkeynum == -1){
-            break;
-        } 
-        delp = findkey(k, delkeynum);
-        rbtree_erase1(k, delp);
-        printf("삭제후 모든 노드 출력:\n");
-        print_tree(k, k->root);
+    // while (1)
+    // {   
+    //     printf("삭제test 키 입력:\n");
+    //     scanf("%d", &delkeynum);
+    //     if (delkeynum == -1){
+    //         break;
+    //     } 
+    //     delp = findkey(k, delkeynum);
+    //     rbtree_erase1(k, delp);
+    //     printf("삭제후 모든 노드 출력:\n");
+    //     print_tree(k, k->root);
 
-    }
+    // }
     
 
     // 트리 삭제
